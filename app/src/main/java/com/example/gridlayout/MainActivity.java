@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(Color.parseColor("lime"));
         }else {
+//            note: cannot "undo" a click!
 //            tv.setTextColor(Color.GRAY);
 //            tv.setBackgroundColor(Color.LTGRAY);
         }

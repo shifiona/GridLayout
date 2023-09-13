@@ -7,30 +7,63 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/flagsIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="28dp"
+        android:text="@string/flag"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout01"
+        app:layout_constraintLeft_toRightOf="@id/flagsLeftCounter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/flagsLeftCounter"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="30dp"
-        android:text="@string/flag"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
+        android:text="4"
         android:textSize="22dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout01"
+        app:layout_constraintRight_toLeftOf="@id/flagsIcon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/timeCounter"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/timeCounter"
+        android:id="@+id/timerIcon"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="105dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="200dp"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
         android:text="@string/clock"
         android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.211"
+        app:layout_constraintLeft_toRightOf="@id/flagsLeftCounter"
+        app:layout_constraintRight_toLeftOf="@id/timerCounter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/flagsLeftCounter"/>
+        app:layout_constraintVertical_bias="0.143"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout01"/>
+
+    <TextView
+        android:id="@+id/timerCounter"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="284dp"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
+        android:text="0"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout01"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/gridLayout01"
@@ -42,11 +75,12 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="1dp"
         app:columnCount="10"
-        app:rowCount="12"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timerIcon"
+        app:rowCount="12">
 
 
         <!--        <TextView-->
