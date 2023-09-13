@@ -42,11 +42,11 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="1dp"
         app:columnCount="10"
+        app:rowCount="12"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:rowCount="12">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <!--        <TextView-->
