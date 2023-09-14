@@ -7,17 +7,18 @@ import com.example.gridlayout.Coordinate;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.net.Inet4Address;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    public static String globalMode = "dig";
 
     private static final int COLUMN_COUNT = 10;
 
@@ -37,10 +38,57 @@ public class MainActivity extends AppCompatActivity {
         quotient = nodeID/COLUMN_COUNT;
         remainder = nodeID%COLUMN_COUNT;
         return new Coordinate(quotient, remainder);
-    };
+    }
 
     private int coordinatesToNodeID(int row, int col){
         return row*COLUMN_COUNT+col;
+    }
+
+    private void recursivelyRevealAdjacentMines(TextView tv){
+        Queue<Integer> q = new LinkedList<Integer>();
+        ArrayList<Integer> alreadyChecked = new ArrayList<>();
+
+        q.add(findIndexOfCellTextView(tv));
+        alreadyChecked.add(findIndexOfCellTextView(tv));
+
+        while(!q.isEmpty()){
+            Integer currCellIndex = q.remove();
+            System.out.println("Looking at "+currCellIndex);
+            // reveal this cell's adjacent mine number
+            TextView currTV = cell_tvs.get(currCellIndex);
+            currTV.setText(Integer.toString(revealedCells.get(currCellIndex)));
+            currTV.setTextColor(Color.WHITE);
+            currTV.setBackgroundColor(Color.BLACK);
+            Coordinate currCoordinate = nodeIDToCoordinates(currCellIndex);
+            Integer adjacentMineNumber = revealedCells.get(currCellIndex);
+            if (adjacentMineNumber!=0){
+                continue;
+            }
+            // check all neighbors...
+            // for loop for all 8 neighbors + itself (but don't actually check itself
+            for (int rowOffset=-1;rowOffset<2;rowOffset++){
+                for (int colOffset=-1;colOffset<2;colOffset++) {
+                    int currNeighborRow = currCoordinate.row+rowOffset;
+                    int currNeighborCol = currCoordinate.col+colOffset;
+                    int currNeighborNodeID = coordinatesToNodeID(currNeighborRow,currNeighborCol);
+                    System.out.println("currCoor: "+currCoordinate.row + ","+currCoordinate.col);
+                    System.out.println("currNeighbor: "+currNeighborRow+ ","+currNeighborCol);
+                    System.out.println("currNeighborNodeID: "+currNeighborNodeID);
+                    // if itself skip,
+                    if (rowOffset==0 && colOffset==0){
+                        continue;
+                    }
+                    // if valid neighbor node has value of 0, add this neighbor node to q
+                    else if (currNeighborRow>=0&&currNeighborRow<12&&currNeighborCol>=0&&currNeighborCol<10) {
+                        if (!alreadyChecked.contains(currNeighborNodeID)) {
+                            q.add(currNeighborNodeID);
+                        }
+                    }
+                    alreadyChecked.add(currNeighborNodeID);
+                }
+            }
+        }
+
     }
 
     @Override
@@ -62,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
                 tv.setWidth( dpToPixel(30) );
                 tv.setTextSize(15);//dpToPixel(32) );
                 tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                tv.setTextColor(Color.GRAY);
-                tv.setBackgroundColor(Color.GRAY);
+                tv.setTextColor(Color.BLUE);
+                tv.setBackgroundColor(Color.BLUE);
                 tv.setOnClickListener(this::onClickTV);
 
                 GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
@@ -95,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 continue;
             }
             // initialize a temp counter variable to 0
-            Integer countAdjacentMines = 0;
+            int countAdjacentMines = 0;
 
             // translate textview id to xy coordinates
             Coordinate currCoordinate = nodeIDToCoordinates(i);
@@ -104,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
                 for (int colOffset=-1;colOffset<2;colOffset++) {
                     int currNeighborRow = currCoordinate.row+rowOffset;
                     int currNeighborCol = currCoordinate.col+colOffset;
-                    Coordinate currNeighbor = new Coordinate(currNeighborRow,currNeighborCol);
                     // if itself skip,
                     if (rowOffset==0 && colOffset==0){
                         continue;
@@ -137,21 +184,70 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
-    public void onClickTV(View view){
+    public void onClickTV(View view) {
         TextView tv = (TextView) view;
+        int currTVTextColor = tv.getCurrentTextColor();
+
         int n = findIndexOfCellTextView(tv);
-        int i = n/COLUMN_COUNT;
-        int j = n%COLUMN_COUNT;
-        tv.setText(Integer.toString(revealedCells.get(n)));
-        System.out.println(findIndexOfCellTextView(tv));
-        System.out.println(Integer.toString(revealedCells.get(n)));
-        if (tv.getCurrentTextColor() == Color.GRAY) {
-            tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(Color.parseColor("lime"));
-        }else {
-//            note: cannot "undo" a click!
-//            tv.setTextColor(Color.GRAY);
-//            tv.setBackgroundColor(Color.LTGRAY);
+        // if in dig mode
+        if (globalMode == "dig") {
+            // if blue cell and unrevealed (aka no flag),
+            if (currTVTextColor== Color.BLUE && tv.getText()=="") {
+                Integer adjacentMines = revealedCells.get(n);
+                // if mine, end game
+                if (adjacentMines==-1){
+                    tv.setText(getString(R.string.mine));
+                    tv.setBackgroundColor(Color.WHITE);
+                }
+                // else if number 1-4 inclusive, show number
+                else if (adjacentMines<=4 && adjacentMines>0){
+                    tv.setText(Integer.toString(adjacentMines));
+                    tv.setTextColor(Color.WHITE);
+                    tv.setBackgroundColor(Color.BLACK);
+                }
+                // else if number is 0, expand
+                else if (adjacentMines==0){
+                    recursivelyRevealAdjacentMines(tv);
+//                    tv.setText(Integer.toString(adjacentMines));
+//                    tv.setTextColor(Color.WHITE);
+//                    tv.setBackgroundColor(Color.BLACK);
+                }
+                // error
+                else {
+                    System.out.println("ERROR: clicked on an unrevealed cell in dig mode with invalid text or invalid adjacentMines calculations");
+                }
+            }
+            // if flagged, do nothing
+            else if (currTVTextColor == Color.BLUE && tv.getText()==getString(R.string.flag)){
+                return;
+            }
+            // if number (aka already revealed), do nothing
+            else if (currTVTextColor== Color.WHITE) {
+                return;
+            }
+        }
+        // else in flag mode
+        else if (globalMode == "flag") {
+            TextView flagsLeftCounterTextView = findViewById(R.id.flagsLeftCounter);
+            Integer currentFlagsLeftCounter = Integer.parseInt((String) flagsLeftCounterTextView.getText());
+            // if blue cell and text is flag icon, then unrevealed but flagged cell
+            if (currTVTextColor==Color.BLUE && tv.getText()==getString(R.string.flag)){
+                // delete flag icon and inc flags left counter
+                tv.setText("");
+                flagsLeftCounterTextView.setText(Integer.toString(currentFlagsLeftCounter+1));
+            }
+            // else if blue cell and no flag icon,
+            else if (currTVTextColor==Color.BLUE ){
+                // show flag icon and dec flags left counter
+                tv.setText(getString(R.string.flag));
+                flagsLeftCounterTextView.setText(Integer.toString(currentFlagsLeftCounter-1));
+            }
+            // else if number, already revealed, do nothing
+            else if (currTVTextColor==Color.WHITE){
+                return;
+            }
+        } else {
+            System.out.println("ERROR: Global Mode is neither dig nor flag.");
         }
     }
 
@@ -161,10 +257,12 @@ public class MainActivity extends AppCompatActivity {
         // if mode is flag, set to dig
         if (mode==getString(R.string.flag)){
             button.setText(getString(R.string.mine));
+            globalMode = "dig";
         }
         // else set to flag
         else{
             button.setText(getString(R.string.flag));
+            globalMode = "flag";
         }
     }
 

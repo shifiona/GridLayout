@@ -156,7 +156,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:text="@string/flag"
+        android:text="@string/mine"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/gridLayout01"
         app:layout_constraintStart_toStartOf="@+id/gridLayout01"
