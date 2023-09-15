@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         while(!q.isEmpty()){
             Integer currCellIndex = q.remove();
-            System.out.println("Looking at "+currCellIndex);
             // reveal this cell's adjacent mine number
             TextView currTV = cell_tvs.get(currCellIndex);
             currTV.setText(Integer.toString(revealedCells.get(currCellIndex)));
@@ -68,23 +67,26 @@ public class MainActivity extends AppCompatActivity {
             // for loop for all 8 neighbors + itself (but don't actually check itself
             for (int rowOffset=-1;rowOffset<2;rowOffset++){
                 for (int colOffset=-1;colOffset<2;colOffset++) {
-                    int currNeighborRow = currCoordinate.row+rowOffset;
-                    int currNeighborCol = currCoordinate.col+colOffset;
+                    int currNeighborRow = currCoordinate.row + rowOffset;
+                    int currNeighborCol = currCoordinate.col + colOffset;
                     int currNeighborNodeID = coordinatesToNodeID(currNeighborRow,currNeighborCol);
-                    System.out.println("currCoor: "+currCoordinate.row + ","+currCoordinate.col);
-                    System.out.println("currNeighbor: "+currNeighborRow+ ","+currNeighborCol);
-                    System.out.println("currNeighborNodeID: "+currNeighborNodeID);
-                    // if itself skip,
-                    if (rowOffset==0 && colOffset==0){
-                        continue;
-                    }
-                    // if valid neighbor node has value of 0, add this neighbor node to q
-                    else if (currNeighborRow>=0&&currNeighborRow<12&&currNeighborCol>=0&&currNeighborCol<10) {
-                        if (!alreadyChecked.contains(currNeighborNodeID)) {
-                            q.add(currNeighborNodeID);
+                    // if curr neighbor node is out of bounds, don't even entertain it
+                    if (currNeighborRow>=0&&currNeighborRow<12&&currNeighborCol>=0&&currNeighborCol<10) {
+                        // if already visited skip,
+                        if (alreadyChecked.contains(currNeighborNodeID)) {
+                            continue;
+                        } else {
+                            // if itself skip,
+                            if (rowOffset == 0 && colOffset == 0) {
+                                continue;
+                            }
+                            // if valid node, add this neighbor node to q
+                            if (currNeighborRow >= 0 && currNeighborRow <= 11 && currNeighborCol >= 0 && currNeighborCol <= 9) {
+                                q.add(currNeighborNodeID);
+                            }
+                            alreadyChecked.add(currNeighborNodeID);
                         }
                     }
-                    alreadyChecked.add(currNeighborNodeID);
                 }
             }
         }
