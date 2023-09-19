@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.gridlayout.widget.GridLayout;
 import com.example.gridlayout.Coordinate;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<TextView> cell_tvs;
     private ArrayList<Integer> mineCells;
     private ArrayList<Integer> revealedCells;
+    private ArrayList<Integer> alreadyChecked = new ArrayList<>();
 
     private int dpToPixel(int dp) {
         float density = Resources.getSystem().getDisplayMetrics().density;
@@ -51,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void recursivelyRevealAdjacentMines(TextView tv){
         Queue<Integer> q = new LinkedList<Integer>();
-        ArrayList<Integer> alreadyChecked = new ArrayList<>();
 
         q.add(findIndexOfCellTextView(tv));
         alreadyChecked.add(findIndexOfCellTextView(tv));
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         while(!q.isEmpty()){
             Integer currCellIndex = q.remove();
             remainingCellsTillWin--;
+            System.out.println("remainingCellsTillWin is "+ remainingCellsTillWin);
             // reveal this cell's adjacent mine number
             TextView currTV = cell_tvs.get(currCellIndex);
             currTV.setText(Integer.toString(revealedCells.get(currCellIndex)));
@@ -198,12 +200,13 @@ public class MainActivity extends AppCompatActivity {
     public void onClickTV(View view) {
         TextView tv = (TextView) view;
         int currTVTextColor = tv.getCurrentTextColor();
-
         int n = findIndexOfCellTextView(tv);
 
         if (gameEnded){
-            // go to results page!
-            displayResultsPage();
+            Intent intent = new Intent(this, Results.class);
+            intent.putExtra("wonBoolean",remainingCellsTillWin<=0);
+            intent.putExtra("time",clock);
+            startActivity(intent);
         }
 
         // if in dig mode
@@ -225,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                     tv.setTextColor(Color.WHITE);
                     tv.setBackgroundColor(Color.BLACK);
                     remainingCellsTillWin--;
+                    System.out.println("remainingCellsTillWin is "+ remainingCellsTillWin);
                 }
                 // else if number is 0, expand
                 else if (adjacentMines==0){
@@ -271,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("ERROR: Global Mode is neither dig nor flag.");
         }
         // check if user has won by revealing all non-mine cells
-        if (remainingCellsTillWin==0){
+        if (remainingCellsTillWin<=0){
             running=false;
             gameEnded=true;
             displayAllMines();
@@ -319,29 +323,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void displayResultsPage(){
-        setContentView(R.layout.results_page);
-        TextView resultTextTV = findViewById(R.id.ResultsText);
-        boolean won = remainingCellsTillWin==0;
-        if (!won) {
-            // losing results page
-            System.out.println("LOST");
-            resultTextTV.setText("Used "+ clock +" seconds.\n You lost.");
-        } else if (won) {
-            // winning results page
-            System.out.println("WON");
-            resultTextTV.setText("Used "+ clock +" seconds.\n You won.\n Good job!");
-        } else {
-            System.out.println("Error: remainingCellsTillWin is a negative variable and it should not be.");
-        }
-        Button btn = (Button) findViewById(R.id.playAgainButton);
-        btn.setOnClickListener(this::onClickPlayAgainButton);
-    }
-
-    public void onClickPlayAgainButton(View view) {
-        Button button = (Button) view;
-        String mode = button.getText().toString();
-        MainActivity mainActivityPlayAgain = new MainActivity();
-    }
+//    private void displayResultsPage(){
+//        setContentView(R.layout.results_page);
+//        TextView resultTextTV = findViewById(R.id.ResultsText);
+//        boolean won = remainingCellsTillWin==0;
+//        if (!won) {
+//            // losing results page
+//            System.out.println("LOST");
+//            resultTextTV.setText("Used "+ clock +" seconds.\n You lost.");
+//        } else if (won) {
+//            // winning results page
+//            System.out.println("WON");
+//            resultTextTV.setText("Used "+ clock +" seconds.\n You won.\n Good job!");
+//        } else {
+//            System.out.println("Error: remainingCellsTillWin is a negative variable and it should not be.");
+//        }
+//        Button btn = (Button) findViewById(R.id.playAgainButton);
+//        btn.setOnClickListener(this::onClickPlayAgainButton);
+//    }
+//
+//    public void onClickPlayAgainButton(View view) {
+//        Button button = (Button) view;
+//        String mode = button.getText().toString();
+//        setContentView(R.layout.activity_main);
+//    }
 
 }
